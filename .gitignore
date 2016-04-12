@@ -4,7 +4,8 @@
 *.iml
 
 ## Directory-based project format:
-.idea/
+/.idea
+*.xml
 # if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
@@ -61,4 +62,4 @@ hs_err_pid*
 
 # Created by .ignore support plugin (hsz.mobi)
 
-.Results/
+/Results
