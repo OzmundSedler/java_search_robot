@@ -15,6 +15,11 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Parser {
+    String Path;
+    boolean Information_type;
+    public Parser(String _Path, boolean _Information_type){
+        Information_type = _Information_type;
+        Path = _Path; }
     private static final String USER_AGENT = // Недружественный поисковый робот )
             "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/535.1 (KHTML, like Gecko) Chrome/13.0.782.112 Safari/535.1";
     private List<String> links = new LinkedList<String>(); // Список url-ов
@@ -36,7 +41,7 @@ public class Parser {
      */
     public void save_file(Document htmlDocument, String url) throws IOException {
         String domain = getDomainName(url);
-        String filename = "Results/" + domain + "file.html";
+        String filename = Path + domain + "file.html";
         System.out.println("Saving to file " + filename);
         BufferedWriter htmlWriter = new BufferedWriter(new OutputStreamWriter
                 (new FileOutputStream
@@ -48,12 +53,23 @@ public class Parser {
 
     }
 
-
+    public void save_url (String url) throws IOException {
+        String filename = Path + "url_file.txt";
+        String buffer = url + "\n";
+//        BufferedWriter Writer = new BufferedWriter(new OutputStreamWriter
+//                (new FileOutputStream
+//                        (filename), "UTF-8"));
+//        Writer.write(url);
+//        Writer.close();
+        PrintWriter out = new PrintWriter(new FileWriter(filename, true));
+        out.write(buffer);
+        out.close();
+    }
     /*
     Посылает HTTP запрос, проверяет ответ собирает все url-ы со страниц.
     Возвращает успешное/неуспешное заверешение функции
     */
-    public boolean crawl(String url) {
+    public boolean crawl(String url, String seed) {
         try {
             Connection connection = Jsoup.connect(url).userAgent(USER_AGENT); // Устанавливаем соединение с заданным
                                                                               // USER_AGENT
@@ -70,13 +86,28 @@ public class Parser {
                 return false;
             }
 
-            save_file(htmlDocument, url); // сохраняем содержимое в файл
+            if (Information_type) {
+                save_file(htmlDocument, url); // сохраняем документ в файл
+            }
+            else {
+                save_url(url);  // сохраняем url в файл
+            }
+
+            String seed_for_check  = seed.replaceFirst("^(http://www\\.|http://|www\\.)", "");
+            System.out.println(String.format("\n Seed for check: %s  \n",seed_for_check));
 
             Elements linksOnPage = htmlDocument.select("a[href]");
             System.out.println("Found (" + linksOnPage.size() + ") links"); // Количество найденных ссылок
             System.out.println("Found " + Words_quantity(htmlDocument) + " words"); // Количество найденных слов
             for (Element link : linksOnPage) {
-                this.links.add(link.absUrl("href"));
+                if (link.absUrl("href").toLowerCase().contains(seed_for_check.toLowerCase())) {
+                    this.links.add(link.absUrl("href"));
+                }
+                else {
+//                    System.out.println(String.format("\n %s Not our URL \n",link.absUrl("href")));
+                }
+//                System.out.println(String.format("link: %s \n seed: %s", link.absUrl("href").toLowerCase(), seed_for_check.toLowerCase()))
+
             }
             return true;
         } catch (IOException ioe) {

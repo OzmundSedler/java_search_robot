@@ -6,7 +6,17 @@ public class CrawlerTest
 
     public static void main(String[] args)
     {
-        Crawler crawler = new Crawler();
-        crawler.search("http://arstechnica.com/");
+        int Depthd = 1;
+        try {
+            Crawler crawler = new Crawler(Depthd, "Results/", "Seeds.txt", false);
+        }
+        catch (InstantiationException a) {
+            System.out.println(a);
+        }
+        catch (IllegalAccessException b) {
+            System.out.println(b);
+        }
+
+
     }
 }
