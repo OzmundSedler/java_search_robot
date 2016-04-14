@@ -53,6 +53,9 @@ public class Parser {
 
     }
 
+    /*
+    Сохраняем только url
+     */
     public void save_url (String url) throws IOException {
         String filename = Path + "url_file.txt";
         String buffer = url + "\n";
@@ -66,7 +69,9 @@ public class Parser {
         out.close();
     }
     /*
-    Посылает HTTP запрос, проверяет ответ собирает все url-ы со страниц.
+
+
+    Посылает HTTP запрос, проверяет ответ собирает данные.
     Возвращает успешное/неуспешное заверешение функции
     */
     public boolean crawl(String url, String seed) {
@@ -93,14 +98,14 @@ public class Parser {
                 save_url(url);  // сохраняем url в файл
             }
 
-            String seed_for_check  = seed.replaceFirst("^(http://www\\.|http://|www\\.)", "");
+            String seed_for_check  = seed.replaceFirst("^(http://www\\.|http://|www\\.)", ""); // Обрубаем сид для проверки вхождения
             System.out.println(String.format("\n Seed for check: %s  \n",seed_for_check));
 
             Elements linksOnPage = htmlDocument.select("a[href]");
             System.out.println("Found (" + linksOnPage.size() + ") links"); // Количество найденных ссылок
             System.out.println("Found " + Words_quantity(htmlDocument) + " words"); // Количество найденных слов
             for (Element link : linksOnPage) {
-                if (link.absUrl("href").toLowerCase().contains(seed_for_check.toLowerCase())) {
+                if (link.absUrl("href").toLowerCase().contains(seed_for_check.toLowerCase())) { // Если ссылка принадлежит сиду
                     this.links.add(link.absUrl("href"));
                 }
                 else {
